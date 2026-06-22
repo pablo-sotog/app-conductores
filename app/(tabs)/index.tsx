@@ -1,13 +1,39 @@
 import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { Button, Platform, StyleSheet } from 'react-native';
 
 import { HelloWave } from '@/components/hello-wave';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { auth } from '@/constants/firebase';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { Link } from 'expo-router';
+import { GoogleAuthProvider, signInWithCredential, signOut } from 'firebase/auth';
 
 export default function HomeScreen() {
+
+  const signIn = async () => {
+    await GoogleSignin.hasPlayServices();
+    const response = await GoogleSignin.signIn();
+    const idToken = response.data?.idToken;
+    console.log("1er idToken ", idToken);
+
+    if (!idToken) {
+      throw new Error('No se recibió idToken');
+    }
+
+    const credential =
+      GoogleAuthProvider.credential(idToken);
+    const userCredential =
+      await signInWithCredential(auth, credential);
+    console.log("id token" + credential.idToken);
+
+    const { displayName, email } = userCredential.user
+    console.log(`Sesión iniciada: ${displayName} ${email}`);
+
+  };
+  
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -19,6 +45,17 @@ export default function HomeScreen() {
       }>
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">Welcome!</ThemedText>
+        <Button title='Iniciar sesión' onPress={signIn} />
+        <Button title='Cerrar sesión' onPress={async () => {
+          try {
+            await GoogleSignin.signOut();
+            await signOut(auth);
+            console.log("Sesión cerrada");
+
+          } catch (error) {
+            console.error(error);
+          }
+        }} />
         <HelloWave />
       </ThemedView>
       <ThemedView style={styles.stepContainer}>

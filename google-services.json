@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "614197859652",
+    "project_id": "sotraser-conductores",
+    "storage_bucket": "sotraser-conductores.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:614197859652:android:e937e3f0caf2bf23ab7311",
+        "android_client_info": {
+          "package_name": "com.sotraser.conductoresapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "614197859652-2664q86naqp2s72mjnmnk3p37kljg512.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sotraser.conductoresapp",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "614197859652-qdf561r63miiig8fvrhbc0rvljhpqv81.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDwh0Scjys0KpHMUtz4FYTqjG1FDDYcnZ8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "614197859652-qdf561r63miiig8fvrhbc0rvljhpqv81.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
