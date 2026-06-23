@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import { Button, Platform, StyleSheet } from 'react-native';
+import { ActivityIndicator, Button, Platform, StyleSheet } from 'react-native';
 
 import { HelloWave } from '@/components/hello-wave';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
@@ -9,11 +9,33 @@ import { auth } from '@/constants/firebase';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { Link } from 'expo-router';
 import { GoogleAuthProvider, signInWithCredential, signOut } from 'firebase/auth';
+import { useState } from 'react';
+
+interface Usuario {
+  nombre?: string;
+  email?: string;
+}
+
+interface Auth {
+  autenticado: boolean;
+  enProgreso: boolean;
+}
 
 export default function HomeScreen() {
 
+  const authInitial: Auth = { autenticado: false, enProgreso: false };
+
+  const [usuario, setUsuario] = useState<Usuario>();
+  const [estadoAuth, setEstadoAuth] = useState<Auth>(authInitial);
+
   const signIn = async () => {
-    await GoogleSignin.hasPlayServices();
+    setEstadoAuth({ ...estadoAuth, enProgreso: true });
+    const hasPS = await GoogleSignin.hasPlayServices();
+
+    if (!hasPS) {
+      throw new Error('Dispositivo no cuenta con Play Services');
+    }
+
     const response = await GoogleSignin.signIn();
     const idToken = response.data?.idToken;
     console.log("1er idToken ", idToken);
@@ -29,10 +51,12 @@ export default function HomeScreen() {
     console.log("id token" + credential.idToken);
 
     const { displayName, email } = userCredential.user
+    setUsuario({ nombre: displayName!, email: email! });
+    setEstadoAuth({ autenticado: true, enProgreso: false });
     console.log(`Sesión iniciada: ${displayName} ${email}`);
 
   };
-  
+
 
   return (
     <ParallaxScrollView
@@ -44,21 +68,31 @@ export default function HomeScreen() {
         />
       }>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <Button title='Iniciar sesión' onPress={signIn} />
-        <Button title='Cerrar sesión' onPress={async () => {
-          try {
-            await GoogleSignin.signOut();
-            await signOut(auth);
-            console.log("Sesión cerrada");
-
-          } catch (error) {
-            console.error(error);
-          }
-        }} />
+        <ThemedText type="title">Welcome! {usuario?.nombre ?? "invitado"}</ThemedText>
         <HelloWave />
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
+        {
+          estadoAuth.enProgreso && (
+            <ActivityIndicator size={'large'} />
+          )
+        }
+        {
+          estadoAuth.autenticado ? (
+            <Button title='Cerrar sesión' onPress={async () => {
+              try {
+                await GoogleSignin.signOut();
+                await signOut(auth);
+                console.log("Sesión cerrada");
+                setUsuario({ nombre: undefined, email: undefined });
+                setEstadoAuth({ autenticado: false, enProgreso: false });
+              } catch (error) {
+                console.error(error);
+              }
+            }} />
+          ) :
+            (<Button title='Iniciar sesión' onPress={signIn} />)
+        }
         <ThemedText type="subtitle">Step 1: Try it</ThemedText>
         <ThemedText>
           Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
